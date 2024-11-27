@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tirage au sort Hanouka Benaphtali</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 20px;
+      }
+      h1 {
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      select,
+      button {
+        margin: 10px 0;
+        padding: 10px;
+        font-size: 16px;
+      }
+      #result {
+        margin-top: 20px;
+        font-weight: bold;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Tirage au sort Hanouka Benaphtali</h1>
+    <div class="container">
+      <label for="user-name">Sélectionnez votre nom :</label>
+      <select id="user-name">
+        <option value="">-- Sélectionnez --</option>
+        <option value="Sacha">Sacha</option>
+        <option value="Alexandre">Alexandre</option>
+        <option value="Stéphane">Stéphane</option>
+        <option value="Elisamode">Elisamode</option>
+        <option value="Eva">Eva</option>
+        <option value="Annick">Annick</option>
+        <option value="Marc">Marc</option>
+      </select>
+      <br />
+      <button id="draw-button">Piochez</button>
+      <div id="result" class="hidden"></div>
+    </div>
+
+    <script>
+      const names = [
+        "Sacha",
+        "Alexandre",
+        "Stéphane",
+        "Elisamode",
+        "Eva",
+        "Annick",
+        "Marc",
+      ];
+      const restrictions = {
+        Eva: ["Alexandre"],
+        Alexandre: ["Eva"],
+        Stéphane: ["Elisamode"],
+        Elisamode: ["Stéphane"],
+        Annick: ["Marc"],
+        Marc: ["Annick"],
+      };
+
+      const remainingNames = [...names]; // Liste des noms encore disponibles
+      const usersWhoPicked = []; // Liste des utilisateurs ayant déjà tiré
+
+      document.getElementById("draw-button").addEventListener("click", () => {
+        const userName = document.getElementById("user-name").value;
+        const resultDiv = document.getElementById("result");
+
+        if (!userName) {
+          resultDiv.textContent = "Veuillez d'abord sélectionner votre nom.";
+          resultDiv.classList.remove("hidden");
+          return;
+        }
+
+        if (usersWhoPicked.includes(userName)) {
+          resultDiv.textContent = `Vous avez déjà tiré un nom, ${userName}.`;
+          resultDiv.classList.remove("hidden");
+          return;
+        }
+
+        // Retirer le nom de l'utilisateur de la liste disponible
+        const availableNames = remainingNames.filter(
+          (name) => name !== userName
+        );
+
+        // Appliquer les restrictions
+        const restrictedNames = restrictions[userName] || [];
+        const filteredNames = availableNames.filter(
+          (name) => !restrictedNames.includes(name)
+        );
+
+        if (filteredNames.length === 0) {
+          resultDiv.textContent = "Aucun nom valide disponible pour vous.";
+          resultDiv.classList.remove("hidden");
+          return;
+        }
+
+        // Tirage au sort
+        const randomIndex = Math.floor(Math.random() * filteredNames.length);
+        const pickedName = filteredNames[randomIndex];
+
+        // Mise à jour des résultats
+        resultDiv.textContent = `Vous avez tiré : ${pickedName}`;
+        resultDiv.classList.remove("hidden");
+
+        // Retirer le nom tiré de la liste globale
+        const indexToRemove = remainingNames.indexOf(pickedName);
+        if (indexToRemove !== -1) remainingNames.splice(indexToRemove, 1);
+
+        // Marquer cet utilisateur comme ayant tiré
+        usersWhoPicked.push(userName);
+
+        // Désactiver le bouton si plus aucun nom n'est disponible
+        if (remainingNames.length === 0) {
+          document.getElementById("draw-button").disabled = true;
+          resultDiv.textContent += " Tous les noms ont été tirés.";
+        }
+      });
+    </script>
+  </body>
+</html>
